@@ -1,0 +1,59 @@
+# Qt build artifacts
+*.obj
+*.o
+*.lo
+*.la
+*.al
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
+
+# Qt Creator build files
+*.user
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qmake.stash
+*.qmlproject.user
+*.autosave
+*.userprefs
+
+# Qt moc, qrc, uic generated files
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+*.moc
+*.qrc
+*.ui
+
+# CMake build directories
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+build-*/
+
+# Qt Creator backup and temp files
+*~
+*.swp
+*.tmp
+*.bak
+
+# Logs
+*.log
+
+# IDE directories
+.idea/
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+build/
