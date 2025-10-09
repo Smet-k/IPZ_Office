@@ -8,7 +8,7 @@
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QFile>
-#include <QPixmap>
+#include <QScrollArea>
 HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
@@ -27,10 +27,26 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     newsletterFrame->setFrameShape(QFrame::NoFrame); //tmp
     newsletterFrame->setStyleSheet("#News {margin:0px 5px 20px 5px;}");
 
+    QWidget *scrollWidget = new QWidget();
+    QVBoxLayout *scrollLayout = new QVBoxLayout(scrollWidget);
+    scrollLayout->setContentsMargins(0,0,0,0);
+    scrollLayout->setSpacing(15);
 
-    for (int i = 1; i < 6; ++i) {
-        newsFrameLayout->addWidget(createNewsRow(QString("News Title Number %1").arg(i)));
+    for (int i = 10; i > 0; i--) {
+        Newsletter news = Newsletter(
+            QString("News Title Number %1").arg(i), "",
+            QDate(2025, 10, i));
+        scrollLayout->addWidget(createNewsRow(news));
     }
+
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(scrollWidget);
+    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+
+    newsFrameLayout->addWidget(scrollArea);
     newsFrameLayout->addStretch();
     newsletterFrame->setLayout(newsFrameLayout);
 
@@ -98,8 +114,7 @@ QFrame* HomePage::getAttendance(){
     return attendanceFrame;
 }
 
-// Make it into a separate class to make it a functional button
-QWidget* HomePage::createNewsRow(QString title){
+QWidget* HomePage::createNewsRow(Newsletter news){
     QWidget* newsRow = new QWidget();
     QVBoxLayout* newsLayout = new QVBoxLayout(newsRow);
     newsRow->setObjectName("newsRow");
@@ -116,11 +131,11 @@ QWidget* HomePage::createNewsRow(QString title){
 
     QFont font = QFont("Noto Sans", 14);
     QFont subtextFont = QFont("Noto Sans", 8);
-    QLabel* newsTitle = new QLabel(title);
+    QLabel* newsTitle = new QLabel(news.title());
     newsTitle->setFont(font);
     newsTitle->setStyleSheet("background: transparent;");
 
-    QLabel* subtext = new QLabel("Published X days ago");
+    QLabel* subtext = new QLabel(QString("Published at %1").arg(news.date().toString("MM.dd.yy")));
     subtext->setFont(subtextFont);
     subtext->setStyleSheet("background: transparent;");
 

@@ -45,6 +45,11 @@ else()
 
             statpage.cpp
             statpage.h
+            newsletter.h
+            stat.h
+            loginmodal.h loginmodal.cpp
+            logoutmodal.h logoutmodal.cpp
+
 
 
 

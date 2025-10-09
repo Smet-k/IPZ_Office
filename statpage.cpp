@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QString>
 #include <QScrollArea>
+#include <QRandomGenerator>
 StatPage::StatPage(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0,0,0,0);
@@ -48,7 +49,7 @@ StatPage::StatPage(QWidget *parent) : QWidget(parent) {
     dateHeader->setStyleSheet("Padding:8px;");
     QLabel *hoursHeader = new QLabel("Work Time");
     hoursHeader->setStyleSheet("Padding:8px;");
-    QLabel *timeHeader = new QLabel("Time Clocked In");
+    QLabel *timeHeader = new QLabel("Clock count");
     timeHeader->setStyleSheet("Padding:8px;");
 
     dateHeader->setFont(headerFont);
@@ -78,23 +79,26 @@ StatPage::StatPage(QWidget *parent) : QWidget(parent) {
 
     attendanceLayout->addWidget(statusHeader);
 
-    // Table Content
     QWidget *contentWidget = new QWidget();
     QVBoxLayout *contentLayout = new QVBoxLayout(contentWidget);
     contentLayout->setContentsMargins(0,0,0,0);
     contentLayout->setSpacing(0);
 
 
-    for (int i = 0; i < 25; i++) {
-        contentLayout->addWidget(CreateStatus("Today", 3, i+1, (i - 1)% 2));
+    for (int i = 25; i > 0; i--) {
+        QTime statTime;
+        statTime.setHMS(QRandomGenerator::global()->bounded(6, 12), i, i);
+        Stat stat = Stat(QDate(2025, 10, i+1), statTime, i % 3 + 1);
+        contentLayout->addWidget(CreateStatus(stat));
     }
 
-    // Create a scroll area
+
     QScrollArea *scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(contentWidget);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scrollArea->setFrameShape(QFrame::NoFrame);
 
     attendanceLayout->addWidget(scrollArea);
 
@@ -106,7 +110,8 @@ StatPage::StatPage(QWidget *parent) : QWidget(parent) {
     layout->addWidget(attendanceInfo);
 }
 
-QWidget* StatPage::CreateStatus(QString date, int hours, int timeSeconds, bool positive){
+QWidget* StatPage::CreateStatus(Stat stat){
+    bool positive = stat.workTime().hour() >= 8;
     QWidget *status = new QWidget();
     QHBoxLayout *statusRow = new QHBoxLayout(status);
     statusRow->setContentsMargins(0,0,0,0);
@@ -114,11 +119,11 @@ QWidget* StatPage::CreateStatus(QString date, int hours, int timeSeconds, bool p
 
     QFont font("Noto Sans", 10);
 
-    QLabel *dateText = new QLabel(date);
+    QLabel *dateText = new QLabel(stat.date().toString("MM.dd.yy"));
     dateText->setStyleSheet("Padding:8px;");
-    QLabel *hoursText = new QLabel(QString::number(hours));
+    QLabel *hoursText = new QLabel(stat.workTime().toString());
     hoursText->setStyleSheet("Padding:8px;");
-    QLabel *timeText = new QLabel(QString::number(timeSeconds));
+    QLabel *timeText = new QLabel(QString::number(stat.clockCount()));
     timeText->setStyleSheet("Padding:8px;");
 
     dateText->setFont(font);

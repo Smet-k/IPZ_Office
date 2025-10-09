@@ -2,14 +2,14 @@
 #define STATPAGE_H
 #include <QWidget>
 #include <QString>
-
+#include "stat.h"
 class StatPage : public QWidget
 {
     Q_OBJECT
 public:
     StatPage(QWidget *parent = nullptr);
 private:
-    QWidget* CreateStatus(QString date, int hours, int timeSeconds, bool positive);
+    QWidget* CreateStatus(Stat stat);
 signals:
     void goToHomePage();
 };
