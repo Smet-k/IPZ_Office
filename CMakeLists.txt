@@ -39,9 +39,14 @@ else()
         add_executable(OfficeClient
             ${PROJECT_SOURCES}
             homepage.h homepage.cpp
-            statpage.h statpage.cpp
+
 
             mainwindow.h mainwindow.cpp
+
+            statpage.cpp
+            statpage.h
+
+
 
 
         )

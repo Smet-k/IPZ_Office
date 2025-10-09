@@ -8,13 +8,14 @@
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QFile>
-
+#include <QPixmap>
 HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     QLabel *text = new QLabel("Welcome! Username");
     QFont font("Noto Sans", 32);
     text->setFont(font);
+    text->setStyleSheet("margin-left:12px");
 
     QWidget *contentBox = new QWidget();
     QHBoxLayout *contentLayout = new QHBoxLayout(contentBox);
@@ -23,12 +24,14 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     QFrame *newsletterFrame = new QFrame();
     QVBoxLayout *newsFrameLayout = new QVBoxLayout(newsletterFrame);
     newsletterFrame->setObjectName("News");
-    newsletterFrame->setFrameShape(QFrame::Box); //tmp
+    newsletterFrame->setFrameShape(QFrame::NoFrame); //tmp
     newsletterFrame->setStyleSheet("#News {margin:0px 5px 20px 5px;}");
 
 
-    QLabel *newsText = new QLabel("Newsletter");
-    newsFrameLayout->addWidget(newsText);
+    for (int i = 1; i < 6; ++i) {
+        newsFrameLayout->addWidget(createNewsRow(QString("News Title Number %1").arg(i)));
+    }
+    newsFrameLayout->addStretch();
     newsletterFrame->setLayout(newsFrameLayout);
 
 
@@ -93,4 +96,37 @@ QFrame* HomePage::getAttendance(){
     attFrameLayout->addStretch();
 
     return attendanceFrame;
+}
+
+// Make it into a separate class to make it a functional button
+QWidget* HomePage::createNewsRow(QString title){
+    QWidget* newsRow = new QWidget();
+    QVBoxLayout* newsLayout = new QVBoxLayout(newsRow);
+    newsRow->setObjectName("newsRow");
+    newsRow->setCursor(Qt::PointingHandCursor);
+    newsRow->setStyleSheet(R"(
+        QWidget#newsRow {
+            background-color: #1c1c1c;
+            border-radius: 8px;
+        }
+        QWidget#newsRow:hover {
+            background-color: #2a2a2a;
+        }
+    )");
+
+    QFont font = QFont("Noto Sans", 14);
+    QFont subtextFont = QFont("Noto Sans", 8);
+    QLabel* newsTitle = new QLabel(title);
+    newsTitle->setFont(font);
+    newsTitle->setStyleSheet("background: transparent;");
+
+    QLabel* subtext = new QLabel("Published X days ago");
+    subtext->setFont(subtextFont);
+    subtext->setStyleSheet("background: transparent;");
+
+
+    newsLayout->addWidget(newsTitle);
+    newsLayout->addWidget(subtext);
+
+    return newsRow;
 }

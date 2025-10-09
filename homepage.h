@@ -10,6 +10,7 @@ public:
     HomePage(QWidget *parent = nullptr);
 private:
     QFrame* getAttendance();
+    QWidget* createNewsRow(QString title);
 signals:
     void goToStatpage();
 };
