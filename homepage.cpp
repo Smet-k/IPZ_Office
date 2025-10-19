@@ -34,7 +34,8 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
 
     for (int i = 10; i > 0; i--) {
         Newsletter news = Newsletter(
-            QString("News Title Number %1").arg(i), "",
+            QString("News Title Number %1").arg(i),
+            QString("News body %1").arg(i),
             QDate(2025, 10, i));
         scrollLayout->addWidget(createNewsRow(news));
     }
@@ -114,17 +115,17 @@ QFrame* HomePage::getAttendance(){
     return attendanceFrame;
 }
 
-QWidget* HomePage::createNewsRow(Newsletter news){
-    QWidget* newsRow = new QWidget();
+ClickableWidget* HomePage::createNewsRow(Newsletter news){
+    ClickableWidget* newsRow = new ClickableWidget();
     QVBoxLayout* newsLayout = new QVBoxLayout(newsRow);
     newsRow->setObjectName("newsRow");
     newsRow->setCursor(Qt::PointingHandCursor);
     newsRow->setStyleSheet(R"(
-        QWidget#newsRow {
+        #newsRow {
             background-color: #1c1c1c;
             border-radius: 8px;
         }
-        QWidget#newsRow:hover {
+        #newsRow:hover {
             background-color: #2a2a2a;
         }
     )");
@@ -142,6 +143,11 @@ QWidget* HomePage::createNewsRow(Newsletter news){
 
     newsLayout->addWidget(newsTitle);
     newsLayout->addWidget(subtext);
+
+    connect(newsRow, &ClickableWidget::clicked, this, [this, news]() {
+        emit goToNewspage(news);
+    });
+
 
     return newsRow;
 }

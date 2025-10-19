@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QFrame>
 #include "newsletter.h"
+#include "clickablewidget.h"
+#include "newsletterpage.h"
 
 class HomePage : public QWidget
 {
@@ -12,9 +14,10 @@ public:
     HomePage(QWidget *parent = nullptr);
 private:
     QFrame* getAttendance();
-    QWidget* createNewsRow(Newsletter news);
+    ClickableWidget* createNewsRow(Newsletter news);
 signals:
     void goToStatpage();
+    void goToNewspage(Newsletter news);
 };
 
 #endif // HOMEPAGE_H

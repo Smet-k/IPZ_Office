@@ -24,11 +24,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     homePage = new HomePage();
     statPage = new StatPage();
+    newsPage = new NewsletterPage();
+    managePage = new ManagePage();
+    editEmployeePage = new EditEmployeePage();
+    editNewsPage = new EditNewsPage();
 
     stack->addWidget(homePage);
+    stack->addWidget(managePage);
     stack->addWidget(statPage);
+    stack->addWidget(newsPage);
+    stack->addWidget(editEmployeePage);
+    stack->addWidget(editNewsPage);
 
+    connect(managePage, &ManagePage::goToEmployeeEdit, this, &MainWindow::showEditEmployeePage);
+    connect(managePage, &ManagePage::goToEmployeeAdd, this, &MainWindow::showAddEmployeePage);
+    connect(managePage, &ManagePage::goToNewsEdit, this, &MainWindow::showEditNewsPage);
+    connect(managePage, &ManagePage::goToNewsAdd, this, &MainWindow::showAddNewsPage);
 
+    connect(homePage, &HomePage::goToNewspage, this, &MainWindow::showNewsPage);
     connect(homePage, &HomePage::goToStatpage, this, &MainWindow::showStatpage);
     connect(statPage, &StatPage::goToHomePage, this, &MainWindow::showHomePage);
 
@@ -74,8 +87,11 @@ QWidget* MainWindow::createSidemenu(){
 
     QPushButton *homeBtn = new QPushButton("Home");
     QPushButton *statsBtn = new QPushButton("Stats");
+    QPushButton *manageBtn = new QPushButton("Manage");
+
     homeBtn->setEnabled(false);
     statsBtn->setEnabled(false);
+    manageBtn->setEnabled(false);
 
     QPushButton *clock = new QPushButton("Clock In");
     clock->setEnabled(false);
@@ -83,8 +99,11 @@ QWidget* MainWindow::createSidemenu(){
 
     connect(homeBtn, &QPushButton::clicked, this, &MainWindow::showHomePage);
     connect(statsBtn, &QPushButton::clicked, this, &MainWindow::showStatpage);
+    connect(manageBtn, &QPushButton::clicked, this, &MainWindow::showManagePage);
+
     mainLayout->addWidget(homeBtn);
     mainLayout->addWidget(statsBtn);
+    mainLayout->addWidget(manageBtn);
     mainLayout->addStretch();
     mainLayout->addWidget(clock);
 
@@ -115,10 +134,11 @@ QWidget* MainWindow::createSidemenu(){
         setClockIn(!clockIn);
     });
 
-    connect(this, &MainWindow::clockStateChanged, this, [this, clock, homeBtn, statsBtn](bool state){
+    connect(this, &MainWindow::clockStateChanged, this, [this, clock, homeBtn, statsBtn, manageBtn](bool state){
         clock->setText(state ? "Clock Out" : "Clock In");
         homeBtn->setEnabled(state);
         statsBtn->setEnabled(state);
+        manageBtn->setEnabled(state);
     });
 
 
@@ -137,6 +157,45 @@ void MainWindow::showHomePage() {
 
 void MainWindow::showStatpage() {
     stack->setCurrentWidget(statPage);
+    setPageInteractable(clockIn);
+}
+
+void MainWindow::showNewsPage(Newsletter news) {
+    newsPage->setNews(news);
+    newsPage->updatePage();
+    stack->setCurrentWidget(newsPage);
+    setPageInteractable(clockIn);
+}
+
+void MainWindow::showEditEmployeePage(Employee employee){
+    editEmployeePage->setEmployee(employee);
+    editEmployeePage->updatePage();
+    stack->setCurrentWidget(editEmployeePage);
+    setPageInteractable(clockIn);
+}
+
+void MainWindow::showAddEmployeePage(){
+    editEmployeePage->clearPage();
+    stack->setCurrentWidget(editEmployeePage);
+    setPageInteractable(clockIn);
+}
+
+void MainWindow::showEditNewsPage(Newsletter news){
+    editNewsPage->setNews(news);
+    editNewsPage->updatePage();
+    stack->setCurrentWidget(editNewsPage);
+    setPageInteractable(clockIn);
+}
+
+void MainWindow::showAddNewsPage(){
+    editNewsPage->clearPage();
+    stack->setCurrentWidget(editNewsPage);
+    setPageInteractable(clockIn);
+}
+
+
+void MainWindow::showManagePage(){
+    stack->setCurrentWidget(managePage);
     setPageInteractable(clockIn);
 }
 
