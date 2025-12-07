@@ -5,7 +5,9 @@
 #include <QScrollArea>
 
 #include "managepage.h"
-
+#include "newsservice.h"
+#include "employeeservice.h"
+#include "layouthelper.h"
 ManagePage::ManagePage() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     QHBoxLayout* sectionsLayout = new QHBoxLayout();
@@ -29,14 +31,18 @@ ManagePage::ManagePage() {
     newsScrollLayout->setContentsMargins(0,0,0,0);
     newsScrollLayout->setSpacing(15);
 
-    for (int i = 10; i > 0; i--) {
-        Newsletter news = Newsletter(
-            QString("News Title Number %1").arg(i),
-            QString("News body %1").arg(i),
-            QDate(2025, 10, i));
-        newsScrollLayout->addWidget(createNewsRow(news));
-    }
+    NewsService *newsService = new NewsService(this);
 
+    connect(newsService, &NewsService::newslettersReady, this,
+            [=](const QList<Newsletter> &list)
+            {
+                clearLayout(newsScrollLayout);
+                for (const Newsletter &news : list) {
+                    newsScrollLayout->addWidget(createNewsRow(news));
+                }
+            });
+
+    newsService->fetchNewsletters();
     QScrollArea *newsScrollArea = new QScrollArea();
     newsScrollArea->setWidgetResizable(true);
     newsScrollArea->setWidget(newsScrollWidget);
@@ -68,14 +74,18 @@ ManagePage::ManagePage() {
     employeeScrollLayout->setContentsMargins(0,0,0,0);
     employeeScrollLayout->setSpacing(15);
 
-    for (int i = 10; i > 0; i--) {
-        Employee employee = Employee(
-            QString("John"),
-            QString("Doe %1").arg(i),
-            QString("Employee"),
-            QDate(2025, 10, i));
-        employeeScrollLayout->addWidget(createEmployeeRow(employee));
-    }
+    EmployeeService *employeeService = new EmployeeService(this);
+
+    connect(employeeService, &EmployeeService::employeesReady, this,
+        [=](const QList<Employee> &list)
+        {
+            clearLayout(employeeScrollLayout);
+            for (const Employee &employee : list) {
+                employeeScrollLayout->addWidget(createEmployeeRow(employee));
+            }
+        });
+
+    employeeService->fetchEmployees();
 
     QScrollArea *employeeScrollArea = new QScrollArea();
     employeeScrollArea->setWidgetResizable(true);

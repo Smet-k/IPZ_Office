@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QDate>
+#include <QJsonObject>
 
 class Employee{
 public:
@@ -11,6 +12,16 @@ public:
         const QString &position = "Employee",
         const QDate &employmentDate = QDate::currentDate())
         : m_name(name), m_surname(surname), m_position(position), m_employmentDate(employmentDate) {}
+
+    static Employee fromJson(const QJsonObject &obj) {
+        return Employee(
+            obj["name"].toString(),
+            obj["surname"].toString(),
+            obj["position_id"].toString(), //TMP, need to make combined request
+            QDate::fromString(obj["employment_date"].toString(), Qt::ISODate)
+            );
+    }
+
 
     QString name() const {return m_name; }
     QString surname() const {return m_surname; }

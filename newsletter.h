@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QDate>
+#include <QJsonObject>
 
 class Newsletter {
 public:
@@ -10,6 +11,14 @@ public:
                const QString &body = "",
                const QDate &date = QDate::currentDate())
         : m_title(title), m_body(body), m_date(date) {}
+
+    static Newsletter fromJson(const QJsonObject &obj) {
+        return Newsletter(
+            obj["title"].toString(),
+            obj["body"].toString(),
+            QDate::fromString(obj["date"].toString(), Qt::ISODate)
+            );
+    }
 
     QString title() const {return m_title; }
     QString body() const {return m_body; }

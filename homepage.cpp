@@ -9,8 +9,11 @@
 #include <QApplication>
 #include <QFile>
 #include <QScrollArea>
+#include "newsservice.h"
+#include "layouthelper.h"
 HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    qDebug() << "Hello";
 
     QLabel *text = new QLabel("Welcome! Username");
     QFont font("Noto Sans", 32);
@@ -32,13 +35,18 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     scrollLayout->setContentsMargins(0,0,0,0);
     scrollLayout->setSpacing(15);
 
-    for (int i = 10; i > 0; i--) {
-        Newsletter news = Newsletter(
-            QString("News Title Number %1").arg(i),
-            QString("News body %1").arg(i),
-            QDate(2025, 10, i));
-        scrollLayout->addWidget(createNewsRow(news));
-    }
+    NewsService *service = new NewsService(this);
+
+    connect(service, &NewsService::newslettersReady, this,
+            [=](const QList<Newsletter> &list)
+            {
+                clearLayout(scrollLayout);
+                for (const Newsletter &news : list) {
+                    scrollLayout->addWidget(createNewsRow(news));
+                }
+            });
+
+    service->fetchNewsletters();
 
     QScrollArea *scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
@@ -64,6 +72,7 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
 }
 
 QFrame* HomePage::getAttendance(){
+    // create a separate API function to fetch this data
     int n = 5; // Number of recent users attending (received from database)
     int totalEmployees = 100; // Total amount of employees clocked in
     QFrame* attendanceFrame = new QFrame();

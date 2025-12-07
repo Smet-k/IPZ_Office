@@ -2,13 +2,22 @@
 #define STAT_H
 #include <QDate>
 #include <QTime>
-
+#include <QJsonObject>
 class Stat{
 public:
     Stat(const QDate &date = QDate::currentDate(),
          const QTime &workTime = QTime::currentTime(),
          const int clockCount = 0)
         : m_date(date), m_workTime(workTime), m_clockCount(clockCount) {}
+
+    static Stat fromJson(const QJsonObject &obj) {
+        return Stat(
+            QDate::fromString(obj["date"].toString(), Qt::ISODate),
+            QTime::fromString(obj["time"].toString()),
+            obj["clock_amount"].toInt()
+            );
+    }
+
 
     QDate date() const {return m_date; }
     QTime workTime() const {return m_workTime; }
