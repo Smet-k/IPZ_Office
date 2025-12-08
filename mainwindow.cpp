@@ -63,7 +63,7 @@ QWidget* MainWindow::createSidemenu(){
         "text-align: left;"
         "padding: 5px 10px 5px 10px;"
         "}"
-    );
+        );
 
     QWidget *sideMenu = new QWidget();
     sideMenu->setObjectName("sideMenu");

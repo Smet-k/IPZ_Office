@@ -13,39 +13,75 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
 set(PROJECT_SOURCES
-    main.cpp
-    homepage.h homepage.cpp
-    mainwindow.h mainwindow.cpp
-    statpage.cpp statpage.h
-    newsletter.h
-    stat.h
-    loginmodal.h loginmodal.cpp
-    logoutmodal.h logoutmodal.cpp
-    newsletterpage.h newsletterpage.cpp
-    clickablewidget.h
-    managepage.h managepage.cpp
-    employee.h
-    editemployeepage.h editemployeepage.cpp
-    editnewspage.h editnewspage.cpp
+        main.cpp
+        mainwindow.cpp
+        mainwindow.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(OfficeClient
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        newsservice.h newsservice.cpp
-        layouthelper.h layouthelper.cpp
-        employeeservice.h employeeservice.cpp
-        positionservice.h positionservice.cpp
+        homepage.h homepage.cpp
+        stat.h
+        employee.h
         position.h
+        newsletter.h
+        clickablewidget.h
+        editemployeepage.h editemployeepage.cpp
+        editnewspage.h editnewspage.cpp
+        employeeservice.h employeeservice.cpp
+        layouthelper.h layouthelper.cpp
+        loginmodal.h loginmodal.cpp
+        logoutmodal.h logoutmodal.cpp
+        managepage.h managepage.cpp
+        newsletterpage.h newsletterpage.cpp
+        newsservice.h newsservice.cpp
+        positionservice.h positionservice.cpp
+        statpage.h statpage.cpp
         statservice.h statservice.cpp
 
     )
-    target_link_libraries(OfficeClient PRIVATE Qt6::Widgets Qt6::Network)
+# Define target properties for Android with Qt 6 as:
+#    set_property(TARGET OfficeClient APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
-    add_executable(OfficeClient ${PROJECT_SOURCES})
-    target_link_libraries(OfficeClient PRIVATE Qt5::Widgets Qt5::Network)
+    if(ANDROID)
+        add_library(OfficeClient SHARED
+            ${PROJECT_SOURCES}
+        )
+# Define properties for Android with Qt 5 after find_package() calls as:
+#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else()
+        add_executable(OfficeClient
+            ${PROJECT_SOURCES}
+        )
+    endif()
 endif()
+
+target_link_libraries(OfficeClient PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+
+# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
+# If you are developing for iOS or macOS you should consider setting an
+# explicit, fixed bundle identifier manually though.
+if(${QT_VERSION} VERSION_LESS 6.1.0)
+  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.OfficeClient)
+endif()
+set_target_properties(OfficeClient PROPERTIES
+    ${BUNDLE_ID_OPTION}
+    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
+
+include(GNUInstallDirs)
+install(TARGETS OfficeClient
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(OfficeClient)

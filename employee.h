@@ -8,11 +8,11 @@
 class Employee{
 public:
     Employee(const QString &name = "",
-        const QString &login = "",
-        const QString &surname = "",
-        const QString &position = "Employee",
-        const QDate &employmentDate = QDate::currentDate(),
-        const QString &password = "")
+             const QString &login = "",
+             const QString &surname = "",
+             const QString &position = "Employee",
+             const QDate &employmentDate = QDate::currentDate(),
+             const QString &password = "")
         : m_login(login), m_name(name), m_surname(surname), m_position(position), m_employmentDate(employmentDate), m_password(password) {}
 
     Employee(const int &id,

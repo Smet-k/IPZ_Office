@@ -86,13 +86,13 @@ ManagePage::ManagePage() {
     employeeService = new EmployeeService(this);
 
     connect(employeeService, &EmployeeService::employeesReady, this,
-        [=](const QList<Employee> &list)
-        {
-            clearLayout(employeeScrollLayout);
-            for (const Employee &employee : list) {
-                employeeScrollLayout->addWidget(createEmployeeRow(employee));
-            }
-        });
+            [=](const QList<Employee> &list)
+            {
+                clearLayout(employeeScrollLayout);
+                for (const Employee &employee : list) {
+                    employeeScrollLayout->addWidget(createEmployeeRow(employee));
+                }
+            });
 
     employeeService->fetchEmployees();
 
