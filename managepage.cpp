@@ -5,8 +5,7 @@
 #include <QScrollArea>
 
 #include "managepage.h"
-#include "newsservice.h"
-#include "employeeservice.h"
+
 #include "layouthelper.h"
 ManagePage::ManagePage() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -25,13 +24,15 @@ ManagePage::ManagePage() {
 
     stack = new QStackedWidget();
 
+
+
     // News
     QWidget *newsScrollWidget = new QWidget();
     QVBoxLayout *newsScrollLayout = new QVBoxLayout(newsScrollWidget);
     newsScrollLayout->setContentsMargins(0,0,0,0);
     newsScrollLayout->setSpacing(15);
 
-    NewsService *newsService = new NewsService(this);
+    newsService = new NewsService(this);
 
     connect(newsService, &NewsService::newslettersReady, this,
             [=](const QList<Newsletter> &list)
@@ -58,13 +59,21 @@ ManagePage::ManagePage() {
     QHBoxLayout *newsButtonsSection = new QHBoxLayout();
 
     QPushButton *addNewsButton = new QPushButton("+");
+    QPushButton *reloadNewsListButton = new QPushButton("Reload");
 
     connect(addNewsButton, &QPushButton::clicked, this, [this]() {
         emit goToNewsAdd();
     });
 
+    connect(reloadNewsListButton, &QPushButton::clicked, this, [this]() {
+        updateList();
+    });
+
+
     newsButtonsSection->addStretch();
     newsButtonsSection->addWidget(addNewsButton);
+
+    newsButtonsSection->addWidget(reloadNewsListButton);
 
     newsSectionLayout->addLayout(newsButtonsSection);
 
@@ -74,7 +83,7 @@ ManagePage::ManagePage() {
     employeeScrollLayout->setContentsMargins(0,0,0,0);
     employeeScrollLayout->setSpacing(15);
 
-    EmployeeService *employeeService = new EmployeeService(this);
+    employeeService = new EmployeeService(this);
 
     connect(employeeService, &EmployeeService::employeesReady, this,
         [=](const QList<Employee> &list)
@@ -103,13 +112,20 @@ ManagePage::ManagePage() {
     QHBoxLayout *employeeButtonsSection = new QHBoxLayout();
 
     QPushButton *addEmployeeButton = new QPushButton("+");
+    QPushButton *reloadEmployeeListButton = new QPushButton("Reload");
 
     connect(addEmployeeButton, &QPushButton::clicked, this, [this]() {
         emit goToEmployeeAdd();
     });
 
+    connect(reloadEmployeeListButton, &QPushButton::clicked, this, [this]() {
+        updateList();
+    });
+
+
     employeeButtonsSection->addStretch();
     employeeButtonsSection->addWidget(addEmployeeButton);
+    employeeButtonsSection->addWidget(reloadEmployeeListButton);
 
     employeeSectionLayout->addLayout(employeeButtonsSection);
 
@@ -199,5 +215,19 @@ ClickableWidget* ManagePage::createEmployeeRow(Employee employee){
     return employeeRow;
 }
 
-void ManagePage::showEmployeeSection(){ stack->setCurrentWidget(employeeSection); }
-void ManagePage::showNewsSection() { stack->setCurrentWidget(newsSection); }
+void ManagePage::updateList(){
+    if(stack->currentWidget() == newsSection)
+        newsService->fetchNewsletters();
+    else if(stack->currentWidget() == employeeSection)
+        employeeService->fetchEmployees();
+}
+
+void ManagePage::showEmployeeSection(){
+    employeeService->fetchEmployees();
+    stack->setCurrentWidget(employeeSection);
+}
+
+void ManagePage::showNewsSection() {
+    newsService->fetchNewsletters();
+    stack->setCurrentWidget(newsSection);
+}

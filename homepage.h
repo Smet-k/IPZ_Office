@@ -5,14 +5,18 @@
 #include <QFrame>
 #include "newsletter.h"
 #include "clickablewidget.h"
-#include "newsletterpage.h"
+#include "QShowEvent"
+#include "newsservice.h"
 
 class HomePage : public QWidget
 {
     Q_OBJECT
 public:
     HomePage(QWidget *parent = nullptr);
+protected:
+    void showEvent(QShowEvent *event) override;
 private:
+    NewsService *service;
     QFrame* getAttendance();
     ClickableWidget* createNewsRow(Newsletter news);
 signals:

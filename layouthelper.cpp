@@ -1,18 +1,15 @@
 #include "layouthelper.h"
+#include <QWidget>
 
 void clearLayout(QLayout *layout)
 {
     QLayoutItem *item;
-    while ((item = layout->takeAt(0)) != nullptr) {
-
-        if (item->widget()) {
-            delete item->widget();   // delete the widget
-        }
-
-        if (item->layout()) {
-            clearLayout(item->layout()); // recursively delete nested layouts
-        }
-
-        delete item; // delete the QLayoutItem
+    while ((item = layout->takeAt(0))) {
+        if (QWidget *w = item->widget())
+            w->deleteLater();          // safe: no instant free
+        if (QLayout *childLayout = item->layout())
+            clearLayout(childLayout);  // recursive
+        if (item->widget())
+            item->widget()->deleteLater();
     }
 }

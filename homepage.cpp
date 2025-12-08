@@ -9,11 +9,17 @@
 #include <QApplication>
 #include <QFile>
 #include <QScrollArea>
-#include "newsservice.h"
 #include "layouthelper.h"
+
+void HomePage::showEvent(QShowEvent *event)
+{
+    QWidget::showEvent(event);
+    service->fetchNewsletters();
+}
+
 HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
-    qDebug() << "Hello";
+
 
     QLabel *text = new QLabel("Welcome! Username");
     QFont font("Noto Sans", 32);
@@ -35,7 +41,7 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     scrollLayout->setContentsMargins(0,0,0,0);
     scrollLayout->setSpacing(15);
 
-    NewsService *service = new NewsService(this);
+    service = new NewsService(this);
 
     connect(service, &NewsService::newslettersReady, this,
             [=](const QList<Newsletter> &list)

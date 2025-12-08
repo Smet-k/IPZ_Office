@@ -8,6 +8,7 @@
 EditNewsPage::EditNewsPage() {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
+
     newsTitleField = new QLineEdit();
     newsTitleField->setPlaceholderText("News Title");
     newsBodyField = new QLineEdit();

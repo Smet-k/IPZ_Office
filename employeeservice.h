@@ -13,8 +13,10 @@ public:
     explicit EmployeeService(QObject * parent = nullptr);
 
     void fetchEmployees();
+    void editEmployee(const Employee &employee);
 signals:
     void employeesReady(const QList<Employee>& list);
+    void employeeEdited(const int status);
 private slots:
     void onEmployeeReply(QNetworkReply *reply);
 

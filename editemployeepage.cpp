@@ -8,16 +8,29 @@
 EditEmployeePage::EditEmployeePage() {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
+    service = new EmployeeService(this);
+
     employeeNameField = new QLineEdit();
     employeeNameField->setPlaceholderText("Employee Name");
     employeeSurnameField = new QLineEdit();
     employeeSurnameField->setPlaceholderText("Employee Surname");
     employeePositionField = new QLineEdit();
     employeePositionField->setPlaceholderText("Employee Position");
-    employeeEmploymentDateField = new QDateEdit();
+    employeePasswordField = new QLineEdit();
+    employeePasswordField->setPlaceholderText("Employee Password");
+    employeeLoginField = new QLineEdit();
+    employeeLoginField->setPlaceholderText("Employee Login");
 
+    employeeEmploymentDateField = new QDateEdit();
+    employeeEmploymentDateField->setDisplayFormat("dd-MM-yyyy");
+
+    QVBoxLayout *loginLayout = new QVBoxLayout();
     QVBoxLayout *nameLayout = new QVBoxLayout();
     QVBoxLayout *surnameLayout = new QVBoxLayout();
+
+
+    loginLayout->addWidget(new QLabel("Login:"));
+    loginLayout->addWidget(employeeLoginField);
 
     nameLayout->addWidget(new QLabel("Name:"));
     nameLayout->addWidget(employeeNameField);
@@ -25,6 +38,7 @@ EditEmployeePage::EditEmployeePage() {
     surnameLayout->addWidget(new QLabel("Surname:"));
     surnameLayout->addWidget(employeeSurnameField);
 
+    mainLayout->addLayout(loginLayout);
     mainLayout->addLayout(nameLayout);
     mainLayout->addLayout(surnameLayout);
 
@@ -40,6 +54,13 @@ EditEmployeePage::EditEmployeePage() {
     mainLayout->addLayout(positionLayout);
     mainLayout->addLayout(employmentDateLayout);
 
+    QVBoxLayout *passwordLayout = new QVBoxLayout();
+
+    passwordLayout->addWidget(new QLabel("Password:"));
+    passwordLayout->addWidget(employeePasswordField);
+
+    mainLayout->addLayout(passwordLayout);
+
     mainLayout->addStretch();
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
@@ -47,6 +68,12 @@ EditEmployeePage::EditEmployeePage() {
     QPushButton *deleteBtn = new QPushButton("Delete");
     QPushButton *cancelBtn = new QPushButton("Cancel");
     QPushButton *submitBtn = new QPushButton("Submit");
+
+    connect(submitBtn, &QPushButton::clicked, this, [this]() {
+        Employee formData = Employee(m_employee.id(),employeeLoginField->text(), employeeNameField->text(), employeeSurnameField->text(), employeePositionField->text(),  employeeEmploymentDateField->date());
+        service->editEmployee(formData);
+    });
+
 
     buttonsLayout->addWidget(deleteBtn);
     buttonsLayout->addStretch();
@@ -59,8 +86,9 @@ EditEmployeePage::EditEmployeePage() {
 void EditEmployeePage::updatePage(){
     employeeNameField->setText(m_employee.name());
     employeeSurnameField->setText(m_employee.surname());
-    employeePositionField->setText(m_employee.name());
+    employeePositionField->setText(m_employee.position());
     employeeEmploymentDateField->setDate(m_employee.employmentDate());
+    employeePasswordField->setText(m_employee.password());
 }
 
 void EditEmployeePage::clearPage(){
@@ -68,6 +96,6 @@ void EditEmployeePage::clearPage(){
     employeeSurnameField->clear();
     employeePositionField->clear();
     employeeEmploymentDateField->setDate(employeeEmploymentDateField->minimumDate());
-
+    employeePasswordField->clear();
     m_employee = Employee();
 }

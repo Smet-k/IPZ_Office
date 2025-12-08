@@ -6,6 +6,8 @@
 #include "clickablewidget.h"
 #include "newsletter.h"
 #include "employee.h"
+#include "newsservice.h"
+#include "employeeservice.h"
 
 class ManagePage : public QWidget
 {
@@ -19,6 +21,10 @@ private slots:
 private:
     ClickableWidget* createNewsRow(Newsletter news);
     ClickableWidget* createEmployeeRow(Employee employee);
+    void updateList();
+
+    NewsService *newsService;
+    EmployeeService *employeeService;
 
     QStackedWidget *stack;
     QWidget *employeeSection;
