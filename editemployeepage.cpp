@@ -70,7 +70,8 @@ EditEmployeePage::EditEmployeePage() {
     QPushButton *submitBtn = new QPushButton("Submit");
 
     connect(submitBtn, &QPushButton::clicked, this, [this]() {
-        Employee formData = Employee(m_employee.id(),employeeLoginField->text(), employeeNameField->text(), employeeSurnameField->text(), employeePositionField->text(),  employeeEmploymentDateField->date());
+        Employee formData = Employee(m_employee.id(), employeeLoginField->text(), employeeNameField->text(), employeeSurnameField->text(), employeePositionField->text(),
+                                     employeeEmploymentDateField->date(), employeePasswordField->text());
         service->editEmployee(formData);
     });
 
@@ -89,6 +90,7 @@ void EditEmployeePage::updatePage(){
     employeePositionField->setText(m_employee.position());
     employeeEmploymentDateField->setDate(m_employee.employmentDate());
     employeePasswordField->setText(m_employee.password());
+    employeeLoginField->setText(m_employee.login());
 }
 
 void EditEmployeePage::clearPage(){
@@ -97,5 +99,6 @@ void EditEmployeePage::clearPage(){
     employeePositionField->clear();
     employeeEmploymentDateField->setDate(employeeEmploymentDateField->minimumDate());
     employeePasswordField->clear();
+    employeeLoginField->clear();
     m_employee = Employee();
 }
