@@ -13,10 +13,10 @@ class NewsService : public QObject
 public:
     explicit NewsService(QObject * parent = nullptr);
 
-    void fetchNewsletters();
+    void fetchNewsletters(int page=1, int pagesize=10);
     void editNews(const Newsletter &employee);
 signals:
-    void newslettersReady(const QList<Newsletter>& list);
+    void newslettersReady(const QList<Newsletter>& list, const int totalCount);
     void newsEdited(const int status);
 
 private:

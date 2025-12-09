@@ -7,8 +7,11 @@ EmployeeService::EmployeeService(QObject *parent)
     : QObject(parent), manager(new QNetworkAccessManager(this))
 {}
 
-void EmployeeService::fetchEmployees() {
-    QUrl url(EMPLOYEE_API + "s");
+void EmployeeService::fetchEmployees(int page, int pagesize) {
+    QUrl url(QString("%1s_view?page=%2&page_size=%3")
+                 .arg(QString(EMPLOYEE_API))
+                 .arg(QString::number(page))
+                 .arg(QString::number(pagesize)));
     QNetworkRequest request(url);
     QNetworkReply *reply = manager->get(request);
 
@@ -19,21 +22,18 @@ void EmployeeService::fetchEmployees() {
             return;
         }
 
-        if (!reply->url().path().endsWith("/employees"))
-            return;
-
         QByteArray data = reply->readAll();
 
         QList<Employee> list;
         QJsonDocument doc = QJsonDocument::fromJson(data);
         QJsonObject root = doc.object();
         QJsonArray arr = root["items"].toArray();
-
+        int totalCount = root["total_count"].toInt();
         for (const QJsonValue &v : arr) {
             list.append(Employee::fromJson(v.toObject()));
         }
 
-        emit employeesReady(list);
+        emit employeesReady(list, totalCount);
         reply->deleteLater();
     });
 }
@@ -51,8 +51,8 @@ void EmployeeService::editEmployee(const Employee &employee){
     body["name"] = employee.name();
     body["surname"] = employee.surname();
     body["employment_date"]  = employee.employmentDate().toString("yyyy-MM-dd");
-    body["position_id"] = 1; // tmp
-    body["role_id"] = 1; // tmp
+    body["position_id"] = employee.positionId();
+    body["role_id"] = employee.role();
     body["password"] = employee.password();
 
     QJsonDocument doc(body);

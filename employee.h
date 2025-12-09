@@ -11,20 +11,22 @@ public:
              const QString &login = "",
              const QString &surname = "",
              const QString &position = "Employee",
+             const int &positionId = 0,
              const QDate &employmentDate = QDate::currentDate(),
              const QString &password = "",
              const int &role = 1)
-        : m_login(login), m_name(name), m_surname(surname), m_position(position), m_employmentDate(employmentDate), m_password(password), m_role(role) {}
+        : m_login(login), m_name(name), m_surname(surname), m_position(position), m_positionId(positionId), m_employmentDate(employmentDate), m_password(password), m_role(role) {}
 
     Employee(const int &id,
              const QString &login = "",
              const QString &name = "",
              const QString &surname = "",
              const QString &position = "Employee",
+             const int &positionId = 0,
              const QDate &employmentDate = QDate::currentDate(),
              const QString &password = "",
              const int &role = 1)
-        : m_id(id), m_login(login), m_name(name), m_surname(surname), m_position(position), m_employmentDate(employmentDate), m_password(password), m_role(role) {}
+        : m_id(id), m_login(login), m_name(name), m_surname(surname), m_position(position), m_positionId(positionId), m_employmentDate(employmentDate), m_password(password), m_role(role) {}
 
     static Employee fromJson(const QJsonObject &obj) {
         return Employee(
@@ -32,7 +34,8 @@ public:
             obj["login"].toString(),
             obj["name"].toString(),
             obj["surname"].toString(),
-            obj["position_id"].toString(), //TMP, need to make combined request
+            obj["position"].toString(),
+            obj["position_id"].toInt(),
             QDate::fromString(obj["employment_date"].toString(), Qt::ISODate),
             obj["password"].toString(),
             obj["role_id"].toInt()
@@ -44,6 +47,7 @@ public:
     QString login() const {return m_login; }
     QString name() const {return m_name; }
     QString surname() const {return m_surname; }
+    int positionId() const {return m_positionId; }
     QString position() const {return m_position; }
     QDate employmentDate() const {return m_employmentDate; }
     QString password() const {return m_password; }
@@ -54,6 +58,7 @@ public:
     void setName(const QString &name) {m_name = name; }
     void setSurname(const QString &surname) {m_surname = surname; }
     void setPosition(const QString &position) {m_position = position; }
+    void setPositionId(const int &id) {m_positionId = id;}
     void setEmploymentDate(const QDate &employmentDate) {m_employmentDate = employmentDate; }
     void setPassword(const QString &password) {m_password = password;}
 private:
@@ -61,6 +66,7 @@ private:
     QString m_login;
     QString m_name;
     QString m_surname;
+    int m_positionId;
     QString m_position;
     QDate m_employmentDate;
     QString m_password;

@@ -4,18 +4,22 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
-
+#include "position.h"
+#include "employeeroles.h"
 EditEmployeePage::EditEmployeePage() {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     service = new EmployeeService(this);
+    posService = new PositionService(this);
 
     employeeNameField = new QLineEdit();
     employeeNameField->setPlaceholderText("Employee Name");
     employeeSurnameField = new QLineEdit();
     employeeSurnameField->setPlaceholderText("Employee Surname");
-    employeePositionField = new QLineEdit();
+    employeePositionField = new QComboBox();
     employeePositionField->setPlaceholderText("Employee Position");
+    employeeRoleField = new QComboBox();
+    employeeRoleField->setPlaceholderText("Employee Role");
     employeePasswordField = new QLineEdit();
     employeePasswordField->setPlaceholderText("Employee Password");
     employeeLoginField = new QLineEdit();
@@ -24,6 +28,25 @@ EditEmployeePage::EditEmployeePage() {
     employeeEmploymentDateField = new QDateEdit();
     employeeEmploymentDateField->setDisplayFormat("dd-MM-yyyy");
 
+    // SETTING UP COMBO BOXES
+    connect(posService, &PositionService::positionsReady, this, [=](const QList<Position> list){
+        employeePositionField->clear();
+
+        for (const Position &pos : list){
+            employeePositionField->addItem(
+                pos.title(),
+                pos.id()
+            );
+        }
+    });
+
+    posService->fetchPositions();
+
+    employeeRoleField->addItem(EmployeeRoles::toString(EmployeeRoles::Employee),     EmployeeRoles::Employee);
+    employeeRoleField->addItem(EmployeeRoles::toString(EmployeeRoles::Admin),    EmployeeRoles::Admin);
+    employeeRoleField->addItem(EmployeeRoles::toString(EmployeeRoles::SysAdmin), EmployeeRoles::SysAdmin);
+
+    // END
     QVBoxLayout *loginLayout = new QVBoxLayout();
     QVBoxLayout *nameLayout = new QVBoxLayout();
     QVBoxLayout *surnameLayout = new QVBoxLayout();
@@ -42,8 +65,12 @@ EditEmployeePage::EditEmployeePage() {
     mainLayout->addLayout(nameLayout);
     mainLayout->addLayout(surnameLayout);
 
+    QVBoxLayout *roleLayout = new QVBoxLayout();
     QVBoxLayout *positionLayout = new QVBoxLayout();
     QVBoxLayout *employmentDateLayout = new QVBoxLayout();
+
+    roleLayout->addWidget(new QLabel("Role:"));
+    roleLayout->addWidget(employeeRoleField);
 
     positionLayout->addWidget(new QLabel("Position:"));
     positionLayout->addWidget(employeePositionField);
@@ -52,6 +79,7 @@ EditEmployeePage::EditEmployeePage() {
     employmentDateLayout->addWidget(employeeEmploymentDateField);
 
     mainLayout->addLayout(positionLayout);
+    mainLayout->addLayout(roleLayout);
     mainLayout->addLayout(employmentDateLayout);
 
     QVBoxLayout *passwordLayout = new QVBoxLayout();
@@ -70,8 +98,8 @@ EditEmployeePage::EditEmployeePage() {
     QPushButton *submitBtn = new QPushButton("Submit");
 
     connect(submitBtn, &QPushButton::clicked, this, [this]() {
-        Employee formData = Employee(m_employee.id(), employeeLoginField->text(), employeeNameField->text(), employeeSurnameField->text(), employeePositionField->text(),
-                                     employeeEmploymentDateField->date(), employeePasswordField->text());
+        Employee formData = Employee(m_employee.id(), employeeLoginField->text(), employeeNameField->text(), employeeSurnameField->text(), "", employeePositionField->currentData().toInt(),
+                                     employeeEmploymentDateField->date(), employeePasswordField->text(), employeeRoleField->currentData().toInt());
         service->editEmployee(formData);
     });
 
@@ -97,7 +125,8 @@ EditEmployeePage::EditEmployeePage() {
 void EditEmployeePage::updatePage(){
     employeeNameField->setText(m_employee.name());
     employeeSurnameField->setText(m_employee.surname());
-    employeePositionField->setText(m_employee.position());
+    int index = employeePositionField->findData(m_employee.positionId());
+    employeePositionField->setCurrentIndex(index);
     employeeEmploymentDateField->setDate(m_employee.employmentDate());
     employeePasswordField->setText(m_employee.password());
     employeeLoginField->setText(m_employee.login());
@@ -106,7 +135,7 @@ void EditEmployeePage::updatePage(){
 void EditEmployeePage::clearPage(){
     employeeNameField->clear();
     employeeSurnameField->clear();
-    employeePositionField->clear();
+    employeePositionField->setCurrentIndex(0);
     employeeEmploymentDateField->setDate(employeeEmploymentDateField->minimumDate());
     employeePasswordField->clear();
     employeeLoginField->clear();

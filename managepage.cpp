@@ -7,13 +7,16 @@
 #include "managepage.h"
 
 #include "layouthelper.h"
+#include "paginationnavigator.h"
+
 ManagePage::ManagePage() {
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     QHBoxLayout* sectionsLayout = new QHBoxLayout();
 
     QPushButton* employeeBtn = new QPushButton("Employees");
     QPushButton* newsBtn = new QPushButton("News");
-
+    PaginationNavigator *newsNavigator = new PaginationNavigator();
+    PaginationNavigator *employeeNavigator = new PaginationNavigator();
     connect(employeeBtn, &QPushButton::clicked, this, &ManagePage::showEmployeeSection);
     connect(newsBtn, &QPushButton::clicked, this, &ManagePage::showNewsSection);
 
@@ -35,15 +38,27 @@ ManagePage::ManagePage() {
     newsService = new NewsService(this);
 
     connect(newsService, &NewsService::newslettersReady, this,
-            [=](const QList<Newsletter> &list)
+            [=](const QList<Newsletter> &list, const int totalCount)
             {
                 clearLayout(newsScrollLayout);
                 for (const Newsletter &news : list) {
                     newsScrollLayout->addWidget(createNewsRow(news));
                 }
+
+                if(list.count() < PAGESIZE){
+                    newsScrollLayout->addStretch();
+                }
+
+                newsNavigator->setTotalEntities(totalCount);
             });
 
     newsService->fetchNewsletters();
+
+    connect(newsNavigator, &PaginationNavigator::pageChanged, this, [=](const int page){
+        newsPage = page;
+        newsService->fetchNewsletters(page, PAGESIZE);
+    });
+
     QScrollArea *newsScrollArea = new QScrollArea();
     newsScrollArea->setWidgetResizable(true);
     newsScrollArea->setWidget(newsScrollWidget);
@@ -58,7 +73,7 @@ ManagePage::ManagePage() {
 
     QHBoxLayout *newsButtonsSection = new QHBoxLayout();
 
-    QPushButton *addNewsButton = new QPushButton("+");
+    QPushButton *addNewsButton = new QPushButton("Add");
     QPushButton *reloadNewsListButton = new QPushButton("Reload");
 
     connect(addNewsButton, &QPushButton::clicked, this, [this]() {
@@ -70,9 +85,11 @@ ManagePage::ManagePage() {
     });
 
 
+
+    newsButtonsSection->addStretch();
+    newsButtonsSection->addWidget(newsNavigator);
     newsButtonsSection->addStretch();
     newsButtonsSection->addWidget(addNewsButton);
-
     newsButtonsSection->addWidget(reloadNewsListButton);
 
     newsSectionLayout->addLayout(newsButtonsSection);
@@ -86,15 +103,26 @@ ManagePage::ManagePage() {
     employeeService = new EmployeeService(this);
 
     connect(employeeService, &EmployeeService::employeesReady, this,
-            [=](const QList<Employee> &list)
+            [=](const QList<Employee> &list, const int totalCount)
             {
                 clearLayout(employeeScrollLayout);
                 for (const Employee &employee : list) {
                     employeeScrollLayout->addWidget(createEmployeeRow(employee));
                 }
+
+                if(list.count() < PAGESIZE){
+                    employeeScrollLayout->addStretch();
+                }
+
+                employeeNavigator->setTotalEntities(totalCount);
             });
 
     employeeService->fetchEmployees();
+
+    connect(employeeNavigator, &PaginationNavigator::pageChanged, this, [=](const int page){
+        employeePage = page;
+        employeeService->fetchEmployees(page, PAGESIZE);
+    });
 
     QScrollArea *employeeScrollArea = new QScrollArea();
     employeeScrollArea->setWidgetResizable(true);
@@ -111,7 +139,7 @@ ManagePage::ManagePage() {
 
     QHBoxLayout *employeeButtonsSection = new QHBoxLayout();
 
-    QPushButton *addEmployeeButton = new QPushButton("+");
+    QPushButton *addEmployeeButton = new QPushButton("Add");
     QPushButton *reloadEmployeeListButton = new QPushButton("Reload");
 
     connect(addEmployeeButton, &QPushButton::clicked, this, [this]() {
@@ -122,7 +150,8 @@ ManagePage::ManagePage() {
         updateList();
     });
 
-
+    employeeButtonsSection->addStretch();
+    employeeButtonsSection->addWidget(employeeNavigator);
     employeeButtonsSection->addStretch();
     employeeButtonsSection->addWidget(addEmployeeButton);
     employeeButtonsSection->addWidget(reloadEmployeeListButton);

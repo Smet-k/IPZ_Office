@@ -4,8 +4,11 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QDateEdit>
+#include <QComboBox>
+
 #include "employee.h"
 #include "employeeservice.h"
+#include "positionservice.h"
 class EditEmployeePage : public QWidget
 {
     Q_OBJECT
@@ -20,13 +23,15 @@ private:
     void submitForm(Employee formData);
 
     EmployeeService *service;
+    PositionService *posService;
 
     Employee m_employee;
 
     QLineEdit *employeeLoginField;
     QLineEdit *employeeNameField;
     QLineEdit *employeeSurnameField;
-    QLineEdit *employeePositionField;
+    QComboBox *employeePositionField;
+    QComboBox *employeeRoleField;
     QDateEdit *employeeEmploymentDateField;
     QLineEdit *employeePasswordField;
 signals:

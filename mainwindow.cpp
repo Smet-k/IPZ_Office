@@ -148,7 +148,8 @@ QWidget* MainWindow::createSidemenu(){
 
     QWidget *headerGroup = new QWidget();
     QVBoxLayout *headerLayout = new QVBoxLayout(headerGroup);
-    QLabel *headerText = new QLabel("Username");
+    headerText = new QLabel("Username");
+
     QFont font = QFont("Noto Sans", 15, 400);
     headerText->setFont(font);
     headerLayout->addWidget(headerText);
@@ -333,6 +334,8 @@ void MainWindow::onLoginButtonClicked() {
             statPage->setAuthorizedEmployee(employee);
             statService->fetchEmployeeStats(employee.id());
 
+            headerText->setText(QString("%1 %2").arg(employee.name(), employee.surname()));
+            homePage->setText(QString("Welcome! %1 %1").arg(employee.name(), employee.surname()));
             if(employee.role() == 2 || employee.role() == 3){
                 manageBtn->setVisible(true);
                 manageBtn->setEnabled(clockIn);

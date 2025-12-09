@@ -16,9 +16,6 @@ public:
 signals:
     void positionsReady(const QList<Position>& list);
 
-private slots:
-    void onPositionsReply(QNetworkReply *reply);
-
 private:
     QNetworkAccessManager *manager;
 };

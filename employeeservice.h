@@ -12,11 +12,11 @@ class EmployeeService : public QObject
 public:
     explicit EmployeeService(QObject * parent = nullptr);
 
-    void fetchEmployees();
+    void fetchEmployees(int page=1, int pagesize=10);
     void editEmployee(const Employee &employee);
     void authEmployee(const QString login, const QString password);
 signals:
-    void employeesReady(const QList<Employee>& list);
+    void employeesReady(const QList<Employee>& list, const int totalCount);
     void employeeEdited(const int status);
     void employeeAuthorized(Employee employee);
 

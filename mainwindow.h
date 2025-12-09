@@ -51,7 +51,7 @@ private:
     Employee authorizedEmployee;
 
     QPushButton *manageBtn;
-
+    QLabel *headerText;
     EditEmployeePage *editEmployeePage;
     EditNewsPage *editNewsPage;
     ManagePage *managePage;

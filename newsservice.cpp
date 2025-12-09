@@ -6,8 +6,12 @@ NewsService::NewsService(QObject *parent)
     : QObject(parent), manager(new QNetworkAccessManager(this))
 {}
 
-void NewsService::fetchNewsletters() {
-    QUrl url(NEWS_API + "s");
+void NewsService::fetchNewsletters(int page, int pagesize) {
+    QUrl url(QString("%1s?page=%2&page_size=%3")
+                 .arg(QString(NEWS_API))
+                 .arg(QString::number(page))
+                 .arg(QString::number(pagesize)));
+
     QNetworkRequest request(url);
     QNetworkReply *reply = manager->get(request);
 
@@ -25,12 +29,13 @@ void NewsService::fetchNewsletters() {
         QJsonDocument doc = QJsonDocument::fromJson(data);
         QJsonObject root = doc.object();
         QJsonArray arr = root["items"].toArray();
+        const int totalCount = root["total_count"].toInt();
 
         for (const QJsonValue &v : arr) {
             list.append(Newsletter::fromJson(v.toObject()));
         }
 
-        emit newslettersReady(list);
+        emit newslettersReady(list, totalCount);
         reply->deleteLater();
     });
 }

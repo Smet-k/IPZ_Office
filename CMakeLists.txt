@@ -40,6 +40,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         positionservice.h positionservice.cpp
         statpage.h statpage.cpp
         statservice.h statservice.cpp
+        employeeroles.h
+        paginationnavigator.h paginationnavigator.cpp
 
     )
 # Define target properties for Android with Qt 6 as:

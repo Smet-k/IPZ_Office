@@ -9,6 +9,8 @@
 #include "newsservice.h"
 #include "employeeservice.h"
 
+#define PAGESIZE 10
+
 class ManagePage : public QWidget
 {
     Q_OBJECT
@@ -19,6 +21,9 @@ private slots:
     void showEmployeeSection();
     void showNewsSection();
 private:
+    int newsPage = 1;
+    int employeePage = 1;
+
     ClickableWidget* createNewsRow(Newsletter news);
     ClickableWidget* createEmployeeRow(Employee employee);
     void updateList();

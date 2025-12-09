@@ -47,6 +47,7 @@ EditNewsPage::EditNewsPage() {
     QPushButton *cancelBtn = new QPushButton("Cancel");
     QPushButton *submitBtn = new QPushButton("Submit");
 
+
     connect(submitBtn, &QPushButton::clicked, this, [this]() {
         Newsletter formData = Newsletter(m_news.id(), newsTitleField->text(), newsBodyField->text(), newsDateField->date());
         service->editNews(formData);

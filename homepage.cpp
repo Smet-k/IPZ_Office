@@ -10,7 +10,7 @@
 #include <QFile>
 #include <QScrollArea>
 #include "layouthelper.h"
-
+#include "paginationnavigator.h"
 void HomePage::showEvent(QShowEvent *event)
 {
     QWidget::showEvent(event);
@@ -21,10 +21,12 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
 
-    QLabel *text = new QLabel("Welcome! Username");
+    welcomeText = new QLabel("Welcome! Username");
     QFont font("Noto Sans", 32);
-    text->setFont(font);
-    text->setStyleSheet("margin-left:12px");
+    welcomeText->setFont(font);
+    welcomeText->setStyleSheet("margin-left:12px");
+
+    PaginationNavigator *nav = new PaginationNavigator();
 
     QWidget *contentBox = new QWidget();
     QHBoxLayout *contentLayout = new QHBoxLayout(contentBox);
@@ -37,6 +39,8 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     newsletterFrame->setStyleSheet("#News {margin:0px 5px 20px 5px;}");
 
     QWidget *scrollWidget = new QWidget();
+    scrollWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+
     QVBoxLayout *scrollLayout = new QVBoxLayout(scrollWidget);
     scrollLayout->setContentsMargins(0,0,0,0);
     scrollLayout->setSpacing(15);
@@ -44,15 +48,23 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     service = new NewsService(this);
 
     connect(service, &NewsService::newslettersReady, this,
-            [=](const QList<Newsletter> &list)
+            [=](const QList<Newsletter> &list, const int totalCount)
             {
                 clearLayout(scrollLayout);
                 for (const Newsletter &news : list) {
                     scrollLayout->addWidget(createNewsRow(news));
                 }
+
+                nav->setTotalEntities(totalCount);
             });
 
     service->fetchNewsletters();
+
+    connect(nav, &PaginationNavigator::pageChanged, this, [=](const int page){
+        newsPage = page;
+        service->fetchNewsletters(page, PAGESIZE);
+    });
+
 
     QScrollArea *scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
@@ -61,73 +73,23 @@ HomePage::HomePage(QWidget *parent) : QWidget(parent) {
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     scrollArea->setFrameShape(QFrame::NoFrame);
 
+    scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    scrollWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     newsFrameLayout->addWidget(scrollArea);
-    newsFrameLayout->addStretch();
     newsletterFrame->setLayout(newsFrameLayout);
 
-
-    QFrame *attendanceFrame = getAttendance();
-    attendanceFrame->setObjectName("Attend");
-    attendanceFrame->setStyleSheet("#Attend {margin:0px 5px 20px 5px;}");
-
     contentLayout->addWidget(newsletterFrame);
-    contentLayout->addWidget(attendanceFrame);
 
-    mainLayout->addWidget(text, 1);
-    mainLayout->addWidget(contentBox, 5);
-}
+    QHBoxLayout *navLayout = new QHBoxLayout();
 
-QFrame* HomePage::getAttendance(){
-    // create a separate API function to fetch this data
-    int n = 5; // Number of recent users attending (received from database)
-    int totalEmployees = 100; // Total amount of employees clocked in
-    QFrame* attendanceFrame = new QFrame();
-    QVBoxLayout *attFrameLayout = new QVBoxLayout(attendanceFrame);
+    navLayout->addStretch();
+    navLayout->addWidget(nav);
+    navLayout->addStretch();
 
-    attendanceFrame->setFrameShape(QFrame::NoFrame);
-    attendanceFrame->setFixedWidth(225);
-    attendanceFrame->setLayout(attFrameLayout);
-
-    attFrameLayout->setSpacing(0);
-
-
-    QFont font = QFont("Noto Sans", 10);
-    QFont fontHeader = QFont("Noto Sans", 14);
-
-    QLabel* headerText = new QLabel("Recent clocks");
-    headerText->setFont(fontHeader);
-    headerText->setAlignment(Qt::AlignLeft);
-    QLabel* subtext = new QLabel(QString("%1 users (last 15 minutes)").arg(n));
-    subtext->setFont(font);
-    subtext->setStyleSheet("Padding-left: 10px;");
-
-    attFrameLayout->addWidget(headerText);
-    attFrameLayout->addWidget(subtext);
-
-    for (int i = 0; i < n; ++i) {
-        QWidget* employeeInfo = new QWidget();
-        QHBoxLayout* employeeRow = new QHBoxLayout(employeeInfo);
-
-        QLabel* employeeName = new QLabel(QString("Employee%1").arg(i));
-        employeeName->setFont(font);
-        employeeName->setAlignment(Qt::AlignLeft);
-        // Maybe add an icon next to authorized user;
-        employeeRow->addWidget(employeeName);
-
-        attFrameLayout->addWidget(employeeInfo);
-    }
-
-    if(totalEmployees - n> 0){
-        QLabel* footerText = new QLabel(QString("Other users(%1)").arg(totalEmployees - n));
-        footerText->setStyleSheet("Padding-left: 10px;");
-        footerText->setFont(font);
-        footerText->setAlignment(Qt::AlignLeft);
-
-        attFrameLayout->addWidget(footerText);
-    }
-    attFrameLayout->addStretch();
-
-    return attendanceFrame;
+    mainLayout->addWidget(welcomeText, 2);
+    mainLayout->addWidget(contentBox, 9);
+    mainLayout->addLayout(navLayout, 1);
 }
 
 ClickableWidget* HomePage::createNewsRow(Newsletter news){

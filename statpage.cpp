@@ -10,6 +10,8 @@
 #include <QRandomGenerator>
 #include "layouthelper.h"
 
+#define LIST_SIZE 10
+
 void StatPage::showEvent(QShowEvent *event)
 {
     if (authorizedEmployee.id() > 0) {
@@ -102,6 +104,10 @@ StatPage::StatPage(QWidget *parent) : QWidget(parent) {
                 clearLayout(contentLayout);
                 for (const Stat &stat : list) {
                     contentLayout->addWidget(CreateStatus(stat));
+                }
+
+                if(list.count() < LIST_SIZE){
+                    contentLayout->addStretch();
                 }
             });
 
