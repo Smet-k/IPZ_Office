@@ -16,6 +16,8 @@ EditNewsPage::EditNewsPage() {
     newsBodyField->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     newsBodyField->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     newsDateField = new QDateEdit();
+    newsDateField->setDisplayFormat("dd-MM-yyyy");
+    service= new NewsService(this);
 
     QHBoxLayout *headerLayout = new QHBoxLayout();
     QVBoxLayout *titleLayout = new QVBoxLayout();
@@ -45,6 +47,22 @@ EditNewsPage::EditNewsPage() {
     QPushButton *cancelBtn = new QPushButton("Cancel");
     QPushButton *submitBtn = new QPushButton("Submit");
 
+    connect(submitBtn, &QPushButton::clicked, this, [this]() {
+        Newsletter formData = Newsletter(m_news.id(), newsTitleField->text(), newsBodyField->text(), newsDateField->date());
+        service->editNews(formData);
+    });
+
+    connect(service, &NewsService::newsEdited, this, [=](const int status){
+        if(status > 0){
+            emit formClosed();
+        }
+        // else process messages
+    });
+
+    connect(cancelBtn, &QPushButton::clicked, this, [this](){
+        emit formClosed();
+    });
+
     buttonsLayout->addWidget(deleteBtn);
     buttonsLayout->addStretch();
     buttonsLayout->addWidget(cancelBtn);
@@ -65,4 +83,5 @@ void EditNewsPage::clearPage(){
     newsDateField->setDate(newsDateField->minimumDate());
 
     m_news = Newsletter();
+    m_news.setId(0);
 }

@@ -14,12 +14,10 @@ public:
     explicit NewsService(QObject * parent = nullptr);
 
     void fetchNewsletters();
-
+    void editNews(const Newsletter &employee);
 signals:
     void newslettersReady(const QList<Newsletter>& list);
-
-private slots:
-    void onNewsReply(QNetworkReply *reply);
+    void newsEdited(const int status);
 
 private:
     QNetworkAccessManager *manager;

@@ -75,6 +75,16 @@ EditEmployeePage::EditEmployeePage() {
         service->editEmployee(formData);
     });
 
+    connect(service, &EmployeeService::employeeEdited, this, [=](const int status){
+        if(status > 0){
+            emit formClosed();
+        }
+        // else process messages
+    });
+
+    connect(cancelBtn, &QPushButton::clicked, this, [this](){
+        emit formClosed();
+    });
 
     buttonsLayout->addWidget(deleteBtn);
     buttonsLayout->addStretch();

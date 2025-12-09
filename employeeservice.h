@@ -19,8 +19,6 @@ signals:
     void employeesReady(const QList<Employee>& list);
     void employeeEdited(const int status);
     void employeeAuthorized(Employee employee);
-private slots:
-    void onEmployeeReply(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager *manager;

@@ -86,6 +86,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(managePage, &ManagePage::goToNewsEdit, this, &MainWindow::showEditNewsPage);
     connect(managePage, &ManagePage::goToNewsAdd, this, &MainWindow::showAddNewsPage);
 
+    connect(editNewsPage, &EditNewsPage::formClosed, this, &MainWindow::showManagePage);
+    connect(editEmployeePage, &EditEmployeePage::formClosed, this, &MainWindow::showManagePage);
+
+
     connect(homePage, &HomePage::goToNewspage, this, &MainWindow::showNewsPage);
     connect(homePage, &HomePage::goToStatpage, this, &MainWindow::showStatpage);
     connect(statPage, &StatPage::goToHomePage, this, &MainWindow::showHomePage);

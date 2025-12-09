@@ -17,7 +17,7 @@ void StatService::fetchEmployeeStats(const int employee_id){
     QNetworkReply *reply;
     reply = manager->get(request);
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply](){
         if (reply->error() != QNetworkReply::NoError){
             reply->deleteLater();
             return;
@@ -39,7 +39,7 @@ void StatService::fetchEmployeeStats(const int employee_id){
             emit onEmployeeStatsReply(list);
             reply->deleteLater();
         }
-    });
+    } );
 
 
 }

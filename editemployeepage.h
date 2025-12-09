@@ -29,7 +29,8 @@ private:
     QLineEdit *employeePositionField;
     QDateEdit *employeeEmploymentDateField;
     QLineEdit *employeePasswordField;
-
+signals:
+    void formClosed();
 };
 
 #endif // EDITEMPLOYEEPAGE_H
