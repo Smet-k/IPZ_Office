@@ -6,9 +6,52 @@
 #include <QSplitter>
 #include <QLabel>
 #include <QResizeEvent>
-
+#include <stdio.h>
 #include "loginmodal.h"
 #include "logoutmodal.h"
+#include <QTime>
+#include <QMessageBox>
+
+void MainWindow::clockInCheck(){
+    // UPDATE CLOCKS HERE
+    if(clockIn){
+        latestClock.setTime(QTime::currentTime());
+    } else{
+        int diffSec = latestClock.time().secsTo(QTime::currentTime());
+        currentStat.setWorkTime(currentStat.workTime().addSecs(diffSec));
+        currentStat.setClockCount(currentStat.clockCount() + 1);
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton reply =
+        QMessageBox::question(this, "Exit", "Are you sure you want to quit?",
+                              QMessageBox::Yes | QMessageBox::No);
+
+    if (reply == QMessageBox::Yes) {
+        if(!clockIn){
+            clockInCheck();
+            StatService *localService = new StatService(this);
+
+            connect(localService, &StatService::statEdited, this, [=](const int status){
+                if (status > 0){
+                    delete localService;
+                    event->accept();
+                }
+                event->ignore();
+            });
+
+            localService->editStat(currentStat,authorizedEmployee.id());
+        }
+        else
+            event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -19,6 +62,8 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout *layout = new QHBoxLayout(central);
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(0);
+
+    statService = new StatService(this);
 
     stack = new QStackedWidget(this);
 
@@ -49,6 +94,29 @@ MainWindow::MainWindow(QWidget *parent)
 
     layout->addWidget(createSidemenu());
     layout->addWidget(stack);
+
+    connect(statService, &StatService::onEmployeeStatsReply, this,
+            [=](const QList<Stat> &list)
+            {
+                Stat latestStat = list.first();
+                if (latestStat.date().year() == QDate::currentDate().year() &&
+                    latestStat.date().month() == QDate::currentDate().month() &&
+                    latestStat.date().day() == QDate::currentDate().day()){
+                    latestClock = QDateTime(latestStat.date(), QTime::currentTime());
+                    currentStat = latestStat;
+
+                }
+                else {
+                    latestClock = QDateTime::currentDateTime();
+                    currentStat.setId(0);
+                    currentStat.setWorkTime(QTime::fromMSecsSinceStartOfDay(0));
+                    currentStat.setDate(QDate::currentDate());
+                    currentStat.setClockCount(0);
+                    currentStat.setEmployeeId(authorizedEmployee.id());
+                }
+            });
+
+
 
     initializeOverlays();
     setPageInteractable(false);
@@ -87,11 +155,12 @@ QWidget* MainWindow::createSidemenu(){
 
     QPushButton *homeBtn = new QPushButton("Home");
     QPushButton *statsBtn = new QPushButton("Stats");
-    QPushButton *manageBtn = new QPushButton("Manage");
+    manageBtn = new QPushButton("Manage");
 
     homeBtn->setEnabled(false);
     statsBtn->setEnabled(false);
     manageBtn->setEnabled(false);
+    manageBtn->setVisible(false);
 
     QPushButton *clock = new QPushButton("Clock In");
     clock->setEnabled(false);
@@ -130,11 +199,18 @@ QWidget* MainWindow::createSidemenu(){
     menuLayout->addWidget(line2);
     menuLayout->addWidget(footerGroup);
 
+
     connect(clock, &QPushButton::clicked, this, [this]() {
         setClockIn(!clockIn);
+        clockInCheck();
+        if(clockIn){
+            statService->fetchEmployeeStats(authorizedEmployee.id());
+        } else {
+            statService->editStat(currentStat, authorizedEmployee.id());
+        }
     });
 
-    connect(this, &MainWindow::clockStateChanged, this, [this, clock, homeBtn, statsBtn, manageBtn](bool state){
+    connect(this, &MainWindow::clockStateChanged, this, [this, clock, homeBtn, statsBtn](bool state){
         clock->setText(state ? "Clock Out" : "Clock In");
         homeBtn->setEnabled(state);
         statsBtn->setEnabled(state);
@@ -245,10 +321,28 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 void MainWindow::onLoginButtonClicked() {
     if(!userAuthorized){
         LoginModal login(this);
+
+        connect(&login, &LoginModal::authorizationSuccessful,
+                this, [=](const Employee &employee){
+
+            setAuthorizedEmployee(employee);
+            statPage->setAuthorizedEmployee(employee);
+            statService->fetchEmployeeStats(employee.id());
+
+            if(employee.role() == 2 || employee.role() == 3){
+                manageBtn->setVisible(true);
+                manageBtn->setEnabled(clockIn);
+            } else{
+                manageBtn->setVisible(false);
+            }
+
+        });
+
+
+
         if (login.exec() == QDialog::Accepted) {
             userAuthorized = true;
             emit authorizationStateChanged(userAuthorized);
-            // successful login logic
         }
     } else{
         LogoutModal logout(this);

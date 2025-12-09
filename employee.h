@@ -12,8 +12,9 @@ public:
              const QString &surname = "",
              const QString &position = "Employee",
              const QDate &employmentDate = QDate::currentDate(),
-             const QString &password = "")
-        : m_login(login), m_name(name), m_surname(surname), m_position(position), m_employmentDate(employmentDate), m_password(password) {}
+             const QString &password = "",
+             const int &role = 1)
+        : m_login(login), m_name(name), m_surname(surname), m_position(position), m_employmentDate(employmentDate), m_password(password), m_role(role) {}
 
     Employee(const int &id,
              const QString &login = "",
@@ -21,8 +22,9 @@ public:
              const QString &surname = "",
              const QString &position = "Employee",
              const QDate &employmentDate = QDate::currentDate(),
-             const QString &password = "")
-        : m_id(id), m_login(login), m_name(name), m_surname(surname), m_position(position), m_employmentDate(employmentDate), m_password(password) {}
+             const QString &password = "",
+             const int &role = 1)
+        : m_id(id), m_login(login), m_name(name), m_surname(surname), m_position(position), m_employmentDate(employmentDate), m_password(password), m_role(role) {}
 
     static Employee fromJson(const QJsonObject &obj) {
         return Employee(
@@ -32,7 +34,8 @@ public:
             obj["surname"].toString(),
             obj["position_id"].toString(), //TMP, need to make combined request
             QDate::fromString(obj["employment_date"].toString(), Qt::ISODate),
-            obj["password"].toString()
+            obj["password"].toString(),
+            obj["role_id"].toInt()
             );
     }
 
@@ -44,6 +47,7 @@ public:
     QString position() const {return m_position; }
     QDate employmentDate() const {return m_employmentDate; }
     QString password() const {return m_password; }
+    int role() const {return m_role; }
 
     void setId(const int &id) {m_id = id; }
     void setLogin(const QString &login) {m_login = login; }
@@ -60,6 +64,7 @@ private:
     QString m_position;
     QDate m_employmentDate;
     QString m_password;
+    int m_role;
 };
 
 #endif // EMPLOYEE_H

@@ -16,6 +16,8 @@ void EmployeeService::fetchEmployees() {
     manager->get(request);
 }
 
+
+// REFACTOR IF IT ACTUALLY FUCKS SHIT UP!!! (IT DOES FFS)
 void EmployeeService::onEmployeeReply(QNetworkReply *reply)
 {
     if (reply->error() != QNetworkReply::NoError) {
@@ -23,6 +25,9 @@ void EmployeeService::onEmployeeReply(QNetworkReply *reply)
         reply->deleteLater();
         return;
     }
+
+    if (reply->url().path().endsWith("/auth"))
+        return;
 
     QByteArray data = reply->readAll();
 
@@ -71,6 +76,36 @@ void EmployeeService::editEmployee(const Employee &employee){
         }
         emit employeeEdited(employee.id() > 0 ? 2 : 1); // use it for success messages
 
+        reply->deleteLater();
+    });
+}
+
+void EmployeeService::authEmployee(const QString login, const QString password){
+    QUrl url(EMPLOYEE_API + "/auth");
+    QNetworkRequest request(url);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject body;
+
+    body["login"] = login;
+    body["password"] = password;
+
+    QJsonDocument doc(body);
+    QByteArray json = doc.toJson();
+    QNetworkReply *reply = manager->post(request,json);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        if (reply->error() != QNetworkReply::NoError){;
+            return;
+        }
+        QByteArray data = reply->readAll();
+
+
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        Employee emp = Employee::fromJson(doc.object());
+
+        emit employeeAuthorized(emp);
         reply->deleteLater();
     });
 }

@@ -5,6 +5,7 @@
 #include <QNetworkReply>
 #include <QJsonArray>
 #include "stat.h"
+
 #define STAT_API QStringLiteral("http://localhost:8080/api/stat")
 
 class StatService : public QObject
@@ -13,14 +14,14 @@ class StatService : public QObject
 public:
     explicit StatService(QObject *parent = nullptr);
 
-    void fetchStats();
+    void fetchEmployeeStats(const int employee_id);
+    void editStat(const Stat &stat, int authorizedEmployee);
 signals:
-    void statsReady(const QList<Stat>& list);
-
-private slots:
-    void onStatsReply(QNetworkReply *reply);
+    void statEdited(const int status);
+    void onEmployeeStatsReply(const QList<Stat>& list);
 
 private:
+
     QNetworkAccessManager *manager;
 };
 

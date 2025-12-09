@@ -4,15 +4,20 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+
+#include "employeeservice.h"
+#include <stdio.h>
 LoginModal::LoginModal(QWidget *parent)
     :QDialog(parent){
     this->setFixedSize(200, 175);
     setWindowTitle("Login");
     setModal(true);
 
+    service = new EmployeeService(this);
+
     QVBoxLayout *loginLayout = new QVBoxLayout(this);
     loginLayout->setSpacing(15);
-    usernameField = new QLineEdit();
+    loginField = new QLineEdit();
     passwordField = new QLineEdit();
     passwordField->setEchoMode(QLineEdit::Password);
 
@@ -21,8 +26,8 @@ LoginModal::LoginModal(QWidget *parent)
 
     QVBoxLayout *fields = new QVBoxLayout();
     fields->setSpacing(4);
-    fields->addWidget(new QLabel("Username:"));
-    fields->addWidget(usernameField);
+    fields->addWidget(new QLabel("Login:"));
+    fields->addWidget(loginField);
     fields->addWidget(new QLabel("Password:"));
     fields->addWidget(passwordField);
 
@@ -33,9 +38,18 @@ LoginModal::LoginModal(QWidget *parent)
     loginLayout->addLayout(fields);
     loginLayout->addLayout(buttons);
 
-    connect(confirmBtn, &QPushButton::clicked, this, &LoginModal::accept);
+    connect(service, &EmployeeService::employeeAuthorized, this, [=](const Employee &employee){
+        emit authorizationSuccessful(employee);
+        accept();
+    });
+
+    connect(confirmBtn, &QPushButton::clicked, this, [this]{
+        service->authEmployee(loginField->text(), passwordField->text());
+    });
     connect(cancelBtn, &QPushButton::clicked, this, &LoginModal::reject);
 }
 
-QString LoginModal::username() const { return usernameField->text(); }
+
+
+QString LoginModal::login() const { return loginField->text(); }
 QString LoginModal::password() const { return passwordField->text(); }

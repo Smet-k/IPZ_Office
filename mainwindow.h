@@ -11,12 +11,21 @@
 #include "employee.h"
 #include "editemployeepage.h"
 #include "editnewspage.h"
+#include "statservice.h"
+#include <QCloseEvent>
+#include <QPushButton>
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
     void setClockIn(bool state);
+    void setAuthorizedEmployee(const Employee &employee){authorizedEmployee = employee; }
+
+    Employee getAuthorizedEmployee() const {return authorizedEmployee;}
+protected:
+    void closeEvent(QCloseEvent *event) override;
 private slots:
     void showHomePage();
     void showStatpage();
@@ -33,6 +42,15 @@ signals:
 private:
     bool clockIn = false;
     bool userAuthorized = false;
+    QDateTime latestClock;
+    QTime workTime;
+    Stat currentStat;
+
+    StatService *statService;
+
+    Employee authorizedEmployee;
+
+    QPushButton *manageBtn;
 
     EditEmployeePage *editEmployeePage;
     EditNewsPage *editNewsPage;
@@ -44,7 +62,8 @@ private:
     void initializeOverlays();
     QWidget* createSidemenu();
     void setPageInteractable(bool enabled);
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    void clockInCheck();
 };
 
 #endif // MAINWINDOW_H

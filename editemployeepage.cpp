@@ -101,4 +101,5 @@ void EditEmployeePage::clearPage(){
     employeePasswordField->clear();
     employeeLoginField->clear();
     m_employee = Employee();
+    m_employee.setId(0);
 }

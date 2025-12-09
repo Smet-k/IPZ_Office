@@ -8,12 +8,24 @@
 #include <QString>
 #include <QScrollArea>
 #include <QRandomGenerator>
+#include "layouthelper.h"
+
+void StatPage::showEvent(QShowEvent *event)
+{
+    if (authorizedEmployee.id() > 0) {
+        service->fetchEmployeeStats(authorizedEmployee.id());
+    }
+}
+
+
 StatPage::StatPage(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0,0,0,0);
 
     QWidget *userInfo = new QWidget();
     QHBoxLayout *userLayout = new QHBoxLayout(userInfo);
+
+    service = new StatService(this);
 
     QWidget *employeeInfo = new QWidget();
     QVBoxLayout *employeeLayout = new QVBoxLayout(employeeInfo);
@@ -84,13 +96,14 @@ StatPage::StatPage(QWidget *parent) : QWidget(parent) {
     contentLayout->setContentsMargins(0,0,0,0);
     contentLayout->setSpacing(0);
 
-
-    for (int i = 25; i > 0; i--) {
-        QTime statTime;
-        statTime.setHMS(QRandomGenerator::global()->bounded(6, 12), i, i);
-        Stat stat = Stat(QDate(2025, 10, i+1), statTime, i % 3 + 1);
-        contentLayout->addWidget(CreateStatus(stat));
-    }
+    connect(service, &StatService::onEmployeeStatsReply, this,
+            [=](const QList<Stat> &list)
+            {
+                clearLayout(contentLayout);
+                for (const Stat &stat : list) {
+                    contentLayout->addWidget(CreateStatus(stat));
+                }
+            });
 
 
     QScrollArea *scrollArea = new QScrollArea();

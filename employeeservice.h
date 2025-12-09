@@ -14,9 +14,11 @@ public:
 
     void fetchEmployees();
     void editEmployee(const Employee &employee);
+    void authEmployee(const QString login, const QString password);
 signals:
     void employeesReady(const QList<Employee>& list);
     void employeeEdited(const int status);
+    void employeeAuthorized(Employee employee);
 private slots:
     void onEmployeeReply(QNetworkReply *reply);
 
