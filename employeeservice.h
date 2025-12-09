@@ -15,11 +15,12 @@ public:
     void fetchEmployees(int page=1, int pagesize=10);
     void editEmployee(const Employee &employee);
     void authEmployee(const QString login, const QString password);
+    void deleteEmployee(const int id);
 signals:
     void employeesReady(const QList<Employee>& list, const int totalCount);
     void employeeEdited(const int status);
     void employeeAuthorized(Employee employee);
-
+    void employeeDeleted(const int status);
 private:
     QNetworkAccessManager *manager;
 };

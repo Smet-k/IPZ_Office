@@ -9,6 +9,7 @@
 #include "employee.h"
 #include "employeeservice.h"
 #include "positionservice.h"
+#include <QPushButton>
 class EditEmployeePage : public QWidget
 {
     Q_OBJECT
@@ -16,7 +17,7 @@ public:
     EditEmployeePage();
 
 
-    void setEmployee (const Employee employee) {m_employee = employee; }
+    void setEmployee (const Employee employee) {m_employee = employee; deleteBtn->setVisible(true); }
     void updatePage();
     void clearPage();
 private:
@@ -26,7 +27,7 @@ private:
     PositionService *posService;
 
     Employee m_employee;
-
+    QPushButton *deleteBtn;
     QLineEdit *employeeLoginField;
     QLineEdit *employeeNameField;
     QLineEdit *employeeSurnameField;

@@ -334,8 +334,8 @@ void MainWindow::onLoginButtonClicked() {
             statPage->setAuthorizedEmployee(employee);
             statService->fetchEmployeeStats(employee.id());
 
-            headerText->setText(QString("%1 %2").arg(employee.name(), employee.surname()));
-            homePage->setText(QString("Welcome! %1 %1").arg(employee.name(), employee.surname()));
+            headerText->setText(QString("%1").arg(employee.name()));
+            homePage->setText(QString("Welcome! %1 %2").arg(employee.name(), employee.surname()));
             if(employee.role() == 2 || employee.role() == 3){
                 manageBtn->setVisible(true);
                 manageBtn->setEnabled(clockIn);

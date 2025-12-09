@@ -38,6 +38,27 @@ void EmployeeService::fetchEmployees(int page, int pagesize) {
     });
 }
 
+void EmployeeService::deleteEmployee(const int id) {
+    QUrl url(QString("%1/%2")
+                 .arg(QString(EMPLOYEE_API))
+                 .arg(QString::number(id)));
+
+    QNetworkRequest request(url);
+    QNetworkReply *reply = manager->deleteResource(request);
+
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply](){
+        if (reply->error() != QNetworkReply::NoError) {
+            qDebug() << "Request error:" << reply->errorString();
+            reply->deleteLater();
+            emit employeeDeleted(0);
+            return;
+        }
+
+        emit employeeDeleted(1);
+    });
+}
+
 void EmployeeService::editEmployee(const Employee &employee){
     QUrl url(EMPLOYEE_API);
     QNetworkRequest request(url);

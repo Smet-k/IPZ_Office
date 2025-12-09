@@ -40,6 +40,27 @@ void NewsService::fetchNewsletters(int page, int pagesize) {
     });
 }
 
+void NewsService::deleteNews(const int id) {
+    QUrl url(QString("%1/%2")
+                 .arg(QString(NEWS_API))
+                 .arg(QString::number(id)));
+
+    QNetworkRequest request(url);
+    QNetworkReply *reply = manager->deleteResource(request);
+
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply](){
+        if (reply->error() != QNetworkReply::NoError) {
+            qDebug() << "Request error:" << reply->errorString();
+            reply->deleteLater();
+            emit newsDeleted(0);
+            return;
+        }
+
+        emit newsDeleted(1);
+    });
+}
+
 void NewsService::editNews(const Newsletter &news){
     QUrl url(NEWS_API);
     QNetworkRequest request(url);

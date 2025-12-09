@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QLineEdit>
 #include <QDateEdit>
+#include <QPushButton>
 
 #include "newsletter.h"
 #include "newsservice.h"
@@ -13,7 +14,7 @@ class EditNewsPage : public QWidget
 public:
     EditNewsPage();
 
-    void setNews(const Newsletter news) {m_news = news; }
+    void setNews(const Newsletter news) {m_news = news; deleteBtn->setVisible(true);}
     void updatePage();
     void clearPage();
 private:
@@ -22,7 +23,7 @@ private:
 
     NewsService *service;
 
-
+    QPushButton *deleteBtn;
     QLineEdit *newsTitleField;
     QLineEdit *newsBodyField;
     QDateEdit *newsDateField;

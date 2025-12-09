@@ -19,6 +19,12 @@ void StatPage::showEvent(QShowEvent *event)
     }
 }
 
+void StatPage::updateDisplayData(){
+    position->setText(QString("Position: %1").arg(authorizedEmployee.position()));
+    hireDate->setText(QString("Hire date: %1").arg(authorizedEmployee.employmentDate().toString(Qt::ISODate)));
+
+    text->setText(QString("%1 %2").arg(authorizedEmployee.name(), authorizedEmployee.surname()));
+}
 
 StatPage::StatPage(QWidget *parent) : QWidget(parent) {
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -31,15 +37,15 @@ StatPage::StatPage(QWidget *parent) : QWidget(parent) {
 
     QWidget *employeeInfo = new QWidget();
     QVBoxLayout *employeeLayout = new QVBoxLayout(employeeInfo);
-    QLabel *position = new QLabel("Position: Employee");
-    QLabel *hireDate = new QLabel("Hire date: 10/4/2025");
+    position = new QLabel(QString("Position: Employee").arg(authorizedEmployee.position()));
+    hireDate = new QLabel(QString("Hire date: 10-11-2025").arg(authorizedEmployee.employmentDate().toString(Qt::ISODate)));
 
     employeeLayout->addWidget(position);
     employeeLayout->addWidget(hireDate);
 
 
 
-    QLabel *text = new QLabel("Username");
+    text = new QLabel(QString("Username").arg(authorizedEmployee.name(), authorizedEmployee.surname()));
     QFont font("Noto Sans", 32);
     text->setFont(font);
 

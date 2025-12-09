@@ -43,17 +43,30 @@ EditNewsPage::EditNewsPage() {
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
 
-    QPushButton *deleteBtn = new QPushButton("Delete");
+    deleteBtn = new QPushButton("Delete");
     QPushButton *cancelBtn = new QPushButton("Cancel");
     QPushButton *submitBtn = new QPushButton("Submit");
 
+    deleteBtn->setVisible(false);
 
     connect(submitBtn, &QPushButton::clicked, this, [this]() {
         Newsletter formData = Newsletter(m_news.id(), newsTitleField->text(), newsBodyField->text(), newsDateField->date());
         service->editNews(formData);
     });
 
+
+    connect(deleteBtn, &QPushButton::clicked, this, [this]() {
+        service->deleteNews(m_news.id());
+    });
+
     connect(service, &NewsService::newsEdited, this, [=](const int status){
+        if(status > 0){
+            emit formClosed();
+        }
+        // else process messages
+    });
+
+    connect(service, &NewsService::newsDeleted, this, [=](const int status){
         if(status > 0){
             emit formClosed();
         }

@@ -93,9 +93,11 @@ EditEmployeePage::EditEmployeePage() {
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
 
-    QPushButton *deleteBtn = new QPushButton("Delete");
+    deleteBtn = new QPushButton("Delete");
     QPushButton *cancelBtn = new QPushButton("Cancel");
     QPushButton *submitBtn = new QPushButton("Submit");
+
+    deleteBtn->setVisible(false);
 
     connect(submitBtn, &QPushButton::clicked, this, [this]() {
         Employee formData = Employee(m_employee.id(), employeeLoginField->text(), employeeNameField->text(), employeeSurnameField->text(), "", employeePositionField->currentData().toInt(),
@@ -103,11 +105,22 @@ EditEmployeePage::EditEmployeePage() {
         service->editEmployee(formData);
     });
 
+    connect(deleteBtn, &QPushButton::clicked, this, [this](){
+        service->deleteEmployee(m_employee.id());
+    });
+
+
     connect(service, &EmployeeService::employeeEdited, this, [=](const int status){
         if(status > 0){
             emit formClosed();
         }
         // else process messages
+    });
+
+    connect(service, &EmployeeService::employeeDeleted, this, [=](const int status){
+        if(status > 0){
+            emit formClosed();
+        }
     });
 
     connect(cancelBtn, &QPushButton::clicked, this, [this](){
